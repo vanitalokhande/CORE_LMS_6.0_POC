@@ -1,6 +1,7 @@
 package com.example.crudapp.service;
 
 import com.example.crudapp.entity.Student;
+import com.example.crudapp.exception.StudentNotFoundException;
 import com.example.crudapp.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,9 @@ public class StudentService {
     }
 
     public void deleteStudent(Long id) {
+        if (!studentRepository.existsById(id)) {
+            throw new StudentNotFoundException("Student with id " + id + " not found.");
+        }
         studentRepository.deleteById(id);
     }
 }
