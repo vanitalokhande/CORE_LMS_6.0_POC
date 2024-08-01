@@ -1,8 +1,11 @@
 package com.example.crudapp.controller;
 
 import com.example.crudapp.entity.Student;
+import com.example.crudapp.exception.StudentNotFoundException;
+import com.example.crudapp.response.apiResponse;
 import com.example.crudapp.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,12 +47,17 @@ public class StudentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
-        if (studentService.getStudentById(id).isPresent()) {
+    public ResponseEntity<apiResponse> deleteStudent(@PathVariable Long id) {
+        try {
             studentService.deleteStudent(id);
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.notFound().build();
+            apiResponse response = new apiResponse("Student deleted successfully", null);
+            return ResponseEntity.ok(response);
+        } catch (StudentNotFoundException e) {
+            apiResponse response = new apiResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            apiResponse response = new apiResponse("An unexpected error occurred", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }
